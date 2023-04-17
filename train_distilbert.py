@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 import pandas as pd
 import torch
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, accuracy_score
 from sklearn.model_selection import train_test_split
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
@@ -76,12 +76,12 @@ def load_dataset(data_path: str) -> pd.DataFrame:
 def split_dataset(train_df, test_size=0.2):
     texts = train_df["text"].tolist()
     labels = train_df["label"].tolist()
-    train_texts, val_texts, train_labels, val_labels = train_test_split(texts, labels, test_size=0.2)
+    train_texts, val_texts, train_labels, val_labels = train_test_split(texts, labels, test_size=test_size)
     return train_texts, val_texts, train_labels, val_labels
 
 
 def train_model(model_name: str, train_data_path: str, dev_data_path: str, num_epochs: int):
-    assert model_name in ("distilbert-base-uncased")
+    assert model_name in ("distilbert-base-uncased", "bert-base-uncased")
 
     # Loads dataset and splits it
     train_df = load_dataset(train_data_path)
@@ -148,7 +148,7 @@ def train_model(model_name: str, train_data_path: str, dev_data_path: str, num_e
 
             logits = outputs.logits
             predictions = torch.argmax(logits, dim=-1)
-            batch_scores.append(f1_score(predictions.cpu().numpy(), batch["labels"].cpu().numpy(), average="weighted"))
+            batch_scores.append(accuracy_score(predictions.cpu().numpy(), batch["labels"].cpu().numpy()))
 
         progress_bar.set_description(
             f"Epoch {epoch+1}/{num_epochs} - train_loss: {np.mean(train_loss):.4f} - val_loss: {np.mean(val_loss):.4f}"
@@ -156,16 +156,16 @@ def train_model(model_name: str, train_data_path: str, dev_data_path: str, num_e
     print(f"Final val score: {np.mean(np.array(batch_scores)) :.4f}")
 
 
-if __name__ == "__main":
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Launches training.")
-    parser.add_argument("--model_name", type=str, default="distilbert-base-uncased", help="Model to use.")
+    parser.add_argument("--model_name", type=str, default="bert-base-uncased", help="Model to use.")
     parser.add_argument(
         "--train_data_path", type=str, default="nlp_assignment/data/traindata.csv", help="Path to train data."
     )
     parser.add_argument(
         "--dev_data_path", type=str, default="nlp_assignment/data/devdata.csv", help="Path to eval data."
     )
-    parser.add_argument("--num_epochs", type=int, default=3, help="Number of epochs.")
+    parser.add_argument("--num_epochs", type=int, default=10, help="Number of epochs.")
     args = parser.parse_args()
 
     train_model(
