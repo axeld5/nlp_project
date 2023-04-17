@@ -153,7 +153,9 @@ def train_model(model_name: str, train_data_path: str, dev_data_path: str, num_e
         progress_bar.set_description(
             f"Epoch {epoch+1}/{num_epochs} - train_loss: {np.mean(train_loss):.4f} - val_loss: {np.mean(val_loss):.4f}"
         )
-    print(f"Final val score: {np.mean(np.array(batch_scores)) :.4f}")
+    final_val_score = np.mean(np.array(batch_scores))
+    print(f"Final val score: {final_val_score :.4f}")
+    return final_val_score
 
 
 if __name__ == "__main__":
@@ -165,12 +167,18 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dev_data_path", type=str, default="nlp_assignment/data/devdata.csv", help="Path to eval data."
     )
-    parser.add_argument("--num_epochs", type=int, default=10, help="Number of epochs.")
+    parser.add_argument("--num_epochs", type=int, default=3, help="Number of epochs.")
+    parser.add_argument("--num_runs", type=int, default=5, help="Number of runs to average score.")
     args = parser.parse_args()
 
-    train_model(
-        model_name=args.model_name,
-        train_data_path=args.train_data_path,
-        dev_data_path=args.dev_data_path,
-        num_epochs=args.num_epochs,
-    )
+    final_val_scores = []
+    for _ in range(args.num_runs):
+        final_val_score = train_model(
+                model_name=args.model_name,
+                train_data_path=args.train_data_path,
+                dev_data_path=args.dev_data_path,
+                num_epochs=args.num_epochs,
+                )
+        final_val_scores.append(final_val_score)
+    mean_score = np.mean(np.array(final_val_scores))
+    print(f"Mean val score: {mean_score :.4f}")
