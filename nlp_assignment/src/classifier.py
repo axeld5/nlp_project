@@ -14,7 +14,7 @@ class Classifier:
 
     ############################################# comp
 
-    def __init__(self, model_name="bert-base-uncased", num_epochs=10, lr=5e-5, batch_size=16):
+    def __init__(self, model_name="bert-base-uncased", num_epochs=1, lr=5e-5, batch_size=16):
         self.model_name = model_name
         self.num_epochs = num_epochs
         self.lr = lr
@@ -46,24 +46,29 @@ class Classifier:
           - DO NOT CHANGE THE SIGNATURE OF THIS METHOD
           - PUT THE MODEL and DATA on the specified device! Do not use another device
         """
-        test_df = load_dataset(data_filename, with_labels=False)
+        test_df = load_dataset(data_filename, with_labels=True)
         test_texts = test_df["text"].tolist()
 
         # Tokenizes texts
         tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-        test_encodings = tokenizer(test_texts, truncation=True, padding=True)
+        
+        # Stores labels with strings
+        labels_list = []
+        label_dict = {2: "positive", 1: "neutral", 0: "negative"}
 
-        # Dataset and DataLoader creation
-        test_dataset = CustomDataset(test_encodings, [-1] * len(test_texts))
-        test_dataloader = DataLoader(test_dataset, shuffle=False, batch_size=self.batch_size)
 
         self.model.to(device)
-        label_list = []
-        label_dict = {2: "positive", 1: "neutral", 0: "negative"}
-        for batch in test_dataloader:
-            batch = {k: v.to(device) for k, v in batch.items()}
-            outputs = self.model(**batch)
-            predictions = torch.argmax(outputs.logits, dim=-1)
-            label_list += [label_dict[pred] for pred in predictions.cpu().numpy()]
+        for text in test_texts:
+            emb = tokenizer(text, truncation=True, padding=True, return_tensors="pt").to(device)
 
-        return label_list
+            # Run inference on the tokenized sentence
+            with torch.no_grad():
+                logits = self.model(**emb)[0]
+
+            # Get the predicted class for the sentence
+            prediction = torch.argmax(logits, dim=1).item()
+
+            # Adds final label to list
+            labels_list.append(label_dict[prediction])
+        
+        return labels_list
