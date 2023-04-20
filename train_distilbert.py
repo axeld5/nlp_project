@@ -79,9 +79,28 @@ def split_dataset(train_df, test_size=0.2):
     train_texts, val_texts, train_labels, val_labels = train_test_split(texts, labels, test_size=test_size)
     return train_texts, val_texts, train_labels, val_labels
 
+def evaluate(data_filename:str, model_name:str, device:str, model:AutoModelForSequenceClassification):
+    test_df = load_dataset(data_filename)
+    test_texts = test_df["text"].tolist()
+    test_labels = test_df["polarity"].tolist()
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    labels_list = []
+    label_dict = {2: "positive", 1: "neutral", 0: "negative"}
+    model.to(device)
+    for text in test_texts:
+        emb = tokenizer(text, truncation=True, padding=True, return_tensors="pt").to(device)
+        with torch.no_grad():
+            logits = model(**emb)[0]
+
+        # Get the predicted class for the sentence
+        prediction = torch.argmax(logits, dim=1).item()
+        labels_list.append(label_dict[prediction])
+    final_score = f1_score(test_labels, labels_list, average="weighted")
+    return final_score
+
 
 def train_model(model_name: str, train_data_path: str, dev_data_path: str, num_epochs: int):
-    assert model_name in ("distilbert-base-uncased", "bert-base-uncased")
+    assert model_name in ("distilbert-base-uncased", "bert-base-uncased", "bert-large-uncased")
 
     # Loads dataset and splits it
     train_df = load_dataset(train_data_path)
@@ -155,7 +174,7 @@ def train_model(model_name: str, train_data_path: str, dev_data_path: str, num_e
         )
     final_val_score = np.mean(np.array(batch_scores))
     print(f"Final val score: {final_val_score :.4f}")
-    return final_val_score
+    return model
 
 
 if __name__ == "__main__":
@@ -173,11 +192,17 @@ if __name__ == "__main__":
 
     final_val_scores = []
     for _ in range(args.num_runs):
-        final_val_score = train_model(
+        model = train_model(
                 model_name=args.model_name,
                 train_data_path=args.train_data_path,
                 dev_data_path=args.dev_data_path,
                 num_epochs=args.num_epochs,
+                )
+        final_val_score = evaluate(
+                data_filename=args.dev_data_path,
+                model_name=args.model_name, 
+                device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
+                model=model
                 )
         final_val_scores.append(final_val_score)
     mean_score = np.mean(np.array(final_val_scores))
