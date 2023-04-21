@@ -54,7 +54,7 @@ The BART model is a denoising autoencoder for pretraining sequence-to-sequence m
 
 |                        | Accuracy on dev dataset |
 |------------------------|-------------------------|
-| BART based model       |      87.45 (0.32)       |
+| BART based model       |      87.34 (0.32)       |
 
 
 ### Ressources

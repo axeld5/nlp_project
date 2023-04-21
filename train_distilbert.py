@@ -100,7 +100,7 @@ def evaluate(data_filename:str, model_name:str, device:str, model:AutoModelForSe
 
 
 def train_model(model_name: str, train_data_path: str, dev_data_path: str, num_epochs: int):
-    assert model_name in ("distilbert-base-uncased", "bert-base-uncased", "bert-large-uncased")
+    assert model_name in ("distilbert-base-uncased", "bert-base-uncased", "bert-large-uncased", "facebook/bart-base")
 
     # Loads dataset and splits it
     train_df = load_dataset(train_data_path)
@@ -179,7 +179,7 @@ def train_model(model_name: str, train_data_path: str, dev_data_path: str, num_e
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Launches training.")
-    parser.add_argument("--model_name", type=str, default="bert-base-uncased", help="Model to use.")
+    parser.add_argument("--model_name", type=str, default="facebook/bart-base", help="Model to use.")
     parser.add_argument(
         "--train_data_path", type=str, default="nlp_assignment/data/traindata.csv", help="Path to train data."
     )
