@@ -1,5 +1,6 @@
 import pandas as pd 
 import numpy as np
+import torch
 
 from datasets import Dataset
 from datasets.dataset_dict import DatasetDict
@@ -220,7 +221,8 @@ def train_model(
     num_epochs: int,
     lr: float,
     batch_size: int,
-    training_seed: int
+    training_seed: int,
+    device: str
 ): 
     assert model_name in ("facebook/bart-base", "facebook/bart-large")
     model_checkpoint = model_name
@@ -259,8 +261,13 @@ def train_model(
         'eval_accumulation_steps':1,
         'predict_with_generate':True,
         'logging_steps':1000000000,
-        'seed':training_seed
+        'seed':training_seed,
     }
+
+    if device == torch.device("cpu"):
+        training_args["no_cuda"] = True 
+    elif torch.cuda.is_available():
+        torch.cuda.set_device(device)
 
     # Train model
     model_trainer = t5_exp.train(id_tokenized_ds, **training_args)

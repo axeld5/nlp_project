@@ -38,7 +38,8 @@ class Classifier:
             num_epochs=self.num_epochs,
             lr=self.lr,
             batch_size=self.batch_size,
-            training_seed=self.training_seed
+            training_seed=self.training_seed,
+            device=device
         )
 
     def predict(self, data_filename: str, device: torch.device) -> List[str]:
