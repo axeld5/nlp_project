@@ -118,7 +118,7 @@ class InstructionsHandler:
     def __init__(self):
         self.atsc = {}
 
-    def load_instruction_set1(self, ):
+    def load_instruction_set(self, ):
         
         self.atsc['bos_instruct'] = """Definition: The output will be 'positive' if the aspect identified in the sentence contains a positive sentiment. If the sentiment of the identified aspect in the input is negative the answer will be 'negative'. 
         Otherwise, the output should be 'neutral'. For aspects which are classified as noaspectterm, the sentiment is none.
@@ -128,24 +128,6 @@ class InstructionsHandler:
         Positive example 2- 
         input: Great food, good size menu, great service and an unpretensious setting. The aspect is food.
         output: positive
-        Now complete the following example-
-        input: """
-        self.atsc['delim_instruct'] = ' The aspect is '
-        self.atsc['eos_instruct'] = '.\noutput:'
-
-    def load_instruction_set2(self, ):
-        
-        self.atsc['bos_instruct'] = """Definition: The output will be 'positive' if the aspect identified in the sentence contains a positive sentiment. If the sentiment of the identified aspect in the input is negative the answer will be 'negative'. 
-        Otherwise, the output should be 'neutral'. For aspects which are classified as noaspectterm, the sentiment is none.
-        Positive example 1- 
-        input: Great food, good size menu, great service and an unpretensious setting. The aspect is food.
-        output: positive
-        Negative example 1-
-        input: They did not have mayonnaise, forgot our toast, left out ingredients (ie cheese in an omelet), below hot temperatures and the bacon was so over cooked it crumbled on the plate when you touched it. The aspect is toast.
-        output: negative
-        Neutral example 1-
-        input: This place is just fine. The aspect is place.
-        output: neutral
         Now complete the following example-
         input: """
         self.atsc['delim_instruct'] = ' The aspect is '
@@ -221,7 +203,7 @@ def train_model(
     id_te_df = load_dataset(dev_data_path)
 
     instruct_handler = InstructionsHandler()
-    instruct_handler.load_instruction_set1()
+    instruct_handler.load_instruction_set()
 
     loader = DatasetLoader(id_tr_df, id_te_df)
     if loader.train_df_id is not None:

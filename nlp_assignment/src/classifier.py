@@ -51,7 +51,7 @@ class Classifier:
         """
         id_te_df = load_dataset(data_filename)
         instruct_handler = InstructionsHandler()
-        instruct_handler.load_instruction_set1()
+        instruct_handler.load_instruction_set()
 
         loader = DatasetLoader(None, id_te_df)
         if loader.train_df_id is not None:
