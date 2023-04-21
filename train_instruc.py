@@ -12,33 +12,27 @@ from data_instruc import load_dataset, DatasetLoader
 from bart import BartClassifier
 from instruc import InstructionsHandler
 
-
-task_name = 'atsc'
-experiment_name = 'test'
 model_checkpoint = 'facebook/bart-base'
-print('Experiment Name: ', experiment_name)
-model_out_path = 'bart_check'
-print('Model output path: ', model_out_path)
 
 id_tr_df = load_dataset("nlp_assignment/data/traindata.csv")
 id_te_df = load_dataset("nlp_assignment/data/devdata.csv")
 
 instruct_handler = InstructionsHandler()
-instruct_handler.load_instruction_set2()
+instruct_handler.load_instruction_set1()
 
 loader = DatasetLoader(id_tr_df, id_te_df)
 if loader.train_df_id is not None:
     loader.train_df_id = loader.create_data_in_atsc_format(loader.train_df_id, 'aspectTerms', 'term', 'raw_text', 'aspect', 
-                            instruct_handler.atsc['bos_instruct2'], instruct_handler.atsc["delim_instruct"], instruct_handler.atsc['eos_instruct'])
+                            instruct_handler.atsc['bos_instruct'], instruct_handler.atsc["delim_instruct"], instruct_handler.atsc['eos_instruct'])
 if loader.test_df_id is not None:
     loader.test_df_id = loader.create_data_in_atsc_format(loader.test_df_id, 'aspectTerms', 'term', 'raw_text', 'aspect',
-                            instruct_handler.atsc['bos_instruct2'], instruct_handler.atsc["delim_instruct"], instruct_handler.atsc['eos_instruct'])
+                            instruct_handler.atsc['bos_instruct'], instruct_handler.atsc["delim_instruct"], instruct_handler.atsc['eos_instruct'])
 
 # Create T5 utils object
 t5_exp = BartClassifier(model_checkpoint)
 
 # Tokenize Dataset
-id_ds, id_tokenized_ds, ood_ds, ood_tokenzed_ds = loader.set_data_for_training_semeval(t5_exp.tokenize_function_inputs)
+id_ds, id_tokenized_ds, _, _ = loader.set_data_for_training_semeval(t5_exp.tokenize_function_inputs)
 
 # Training arguments
 training_args = {

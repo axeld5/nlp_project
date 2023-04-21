@@ -1,7 +1,8 @@
 import time, sys
 import numpy as np
 import argparse
-
+import os 
+os.environ["WANDB_DISABLED"] = "true"
 import torch
 
 from classifier import Classifier
