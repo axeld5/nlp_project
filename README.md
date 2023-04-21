@@ -46,7 +46,7 @@ This prompts are then given as input to the tokenizer. The feature representatio
 
 The BART model is a denoising autoencoder for pretraining sequence-to-sequence models. We fine tuned it using the traindata.csv file. The fine tuning hyperparameters are:
 - 2 epochs 
-- batch size 8 
+- batch size 8 (eval batch size 4)
 - Adam optimizer with 1e-5 learning rate 
 
 
