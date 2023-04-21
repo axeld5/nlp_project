@@ -220,6 +220,7 @@ def train_model(
     num_epochs: int,
     lr: float,
     batch_size: int,
+    training_seed: int
 ): 
     assert model_name in ("facebook/bart-base", "facebook/bart-large")
     model_checkpoint = model_name
@@ -258,6 +259,7 @@ def train_model(
         'eval_accumulation_steps':1,
         'predict_with_generate':True,
         'logging_steps':1000000000,
+        'seed':training_seed
     }
 
     # Train model

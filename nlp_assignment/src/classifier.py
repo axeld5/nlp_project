@@ -1,5 +1,6 @@
 from typing import List
 
+import numpy as np 
 import torch
 
 from train_utils import InstructionsHandler, DatasetLoader, load_dataset, train_model, BartClassifier
@@ -19,6 +20,7 @@ class Classifier:
         self.lr = lr
         self.batch_size = batch_size
         self.base_bert_exp = BartClassifier(self.model_name)
+        self.training_seed = np.random.choice(10**6)
 
     def train(self, train_filename: str, dev_filename: str, device: torch.device):
         """
@@ -36,6 +38,7 @@ class Classifier:
             num_epochs=self.num_epochs,
             lr=self.lr,
             batch_size=self.batch_size,
+            training_seed=self.training_seed
         )
 
     def predict(self, data_filename: str, device: torch.device) -> List[str]:
