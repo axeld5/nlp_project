@@ -59,15 +59,10 @@ The DistilBERT model was proposed in the paper <ins>DistilBERT, a distilled vers
 - Activation = 'gelu'
 - Standard deviation of the truncated normal initializer = 0.02
 
-## Accuracy on the dev dataset
 
-|                        | Accuracy on dev dataset |
-|------------------------|-------------------------|
-| distilBERT based model |                         |
+### Ressources
 
-## Ressources
-
-    @misc{https://doi.org/10.48550/arxiv.1910.01108,
+@misc{https://doi.org/10.48550/arxiv.1910.01108,
     doi = {10.48550/ARXIV.1910.01108},
     url = {https://arxiv.org/abs/1910.01108},
     author = {Sanh,  Victor and Debut,  Lysandre and Chaumond,  Julien and Wolf,  Thomas},
@@ -76,4 +71,12 @@ The DistilBERT model was proposed in the paper <ins>DistilBERT, a distilled vers
     publisher = {arXiv},
     year = {2019},
     copyright = {arXiv.org perpetual,  non-exclusive license}
-    }
+
+## Accuracy on the dev dataset
+
+|                        | Accuracy on dev dataset |
+|------------------------|-------------------------|
+| distilBERT based model |                         |
+
+
+    
