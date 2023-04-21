@@ -221,7 +221,7 @@ def train_model(
     id_te_df = load_dataset(dev_data_path)
 
     instruct_handler = InstructionsHandler()
-    instruct_handler.load_instruction_set2()
+    instruct_handler.load_instruction_set1()
 
     loader = DatasetLoader(id_tr_df, id_te_df)
     if loader.train_df_id is not None:
