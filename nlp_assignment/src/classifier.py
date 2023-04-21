@@ -19,7 +19,7 @@ class Classifier:
         self.num_epochs = num_epochs
         self.lr = lr
         self.batch_size = batch_size
-        self.base_bert_exp = BartClassifier(self.model_name)
+        self.base_bart_exp = BartClassifier(self.model_name)
         self.training_seed = np.random.choice(10**6)
 
     def train(self, train_filename: str, dev_filename: str, device: torch.device):
@@ -31,7 +31,7 @@ class Classifier:
           - DO NOT USE THE DEV DATA AS TRAINING EXAMPLES, YOU CAN USE THEM ONLY FOR THE OPTIMIZATION
          OF MODEL HYPERPARAMETERS
         """
-        self.bert_exp, self.model = train_model(
+        self.bart_exp, self.model = train_model(
             model_name=self.model_name,
             train_data_path=train_filename,
             dev_data_path=dev_filename,
@@ -63,9 +63,9 @@ class Classifier:
 
 
         # Tokenize Dataset
-        _, id_tokenized_ds = loader.set_data_for_training_semeval(self.base_bert_exp.tokenize_function_inputs)
+        _, id_tokenized_ds = loader.set_data_for_training(self.base_bart_exp.tokenize_function_inputs)
 
-        id_te_pred_labels = self.bert_exp.get_labels(predictor = self.model, tokenized_dataset = id_tokenized_ds, sample_set = 'test')
+        id_te_pred_labels = self.bart_exp.get_labels(predictor = self.model, tokenized_dataset = id_tokenized_ds, sample_set = 'test')
 
         return id_te_pred_labels
 

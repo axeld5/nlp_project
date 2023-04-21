@@ -93,7 +93,7 @@ class DatasetLoader:
         df = df.rename(columns = {'polarity': 'labels'})
         return df
     
-    def set_data_for_training_semeval(self, tokenize_function):
+    def set_data_for_training(self, tokenize_function):
         """
         Create the training and test dataset as huggingface datasets format.
         """
@@ -240,11 +240,11 @@ def train_model(
         loader.test_df_id = loader.create_data_in_atsc_format(loader.test_df_id, 'aspectTerms', 'term', 'raw_text', 'aspect', 
                                 instruct_handler.atsc['bos_instruct'], instruct_handler.atsc["delim_instruct"], instruct_handler.atsc['eos_instruct'])
 
-    # Create T5 utils object
-    t5_exp = BartClassifier(model_checkpoint)
+    # Create Bart utils object
+    bart_exp = BartClassifier(model_checkpoint)
 
     # Tokenize Dataset
-    id_ds, id_tokenized_ds = loader.set_data_for_training_semeval(t5_exp.tokenize_function_inputs)
+    id_ds, id_tokenized_ds = loader.set_data_for_training(bart_exp.tokenize_function_inputs)
     # Training arguments
     training_args = {
         'output_dir':'.',
@@ -270,6 +270,6 @@ def train_model(
         torch.cuda.set_device(device)
 
     # Train model
-    model_trainer = t5_exp.train(id_tokenized_ds, **training_args)
+    model_trainer = bart_exp.train(id_tokenized_ds, **training_args)
 
-    return t5_exp, model_trainer
+    return bart_exp, model_trainer
