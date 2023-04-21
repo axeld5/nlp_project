@@ -1,82 +1,78 @@
 # NLP Assignment: Aspect-Term Polarity Classification in Sentiment Analysis
 
 ## Student Names
+
 The names of the students who contributed to the deliverable are:
-- Bouthaina HOUASS
-- Carlos SANTOS GARCIA
 - Axel DARMOUNI
+- Bouthaina HOUASS
 - Mathilde LARCHEVÊQUE
+- Carlos SANTOS GARCIA
 
-## Description of the implemented classifier 
 
-The classification model that we used is a DistilBERT model. 
+## Description of the implemented solution 
 
-### Text pre processing 
+The model that we used is a sequence-to-sequence model based on BART model for conditional generation. We use the instruction learning paradigm: we introduce positive, negative and neutral examples to the each training sample, which significantly improves the performance of our model.
+This strategy is based on the paper <ins>InstructABSA: Instruction Learning for Aspect Based Sentiment Analysis</ins> by Scaria et. al.
 
-The first step of the classification process is to transform the aspect categories into phrases: for example:
-```
-"LOCATION#GENERAL"     --->    "General information about location."
-"RESTAURANT#GENERAL"   --->    "General information about the restaurant."
-```
-
-Then the target term is also transform into a sentence:
-```
-"restaurant"           --->    "Target term: restaurant."
-"food"                 --->    "Target term: food."
-```
-
-Finaly the three sentences are concatenated:
-```
-"RESTAURANT#GENERAL | trattoria | This quaint and romantic trattoria is at the top of my Manhattan restaurant list."
-                       ---> 
-"General information about the restaurant. Target term: trattoria. This quaint and romantic trattoria is at the top of my Manhattan restaurant list."
-```
-
-These transformed sentences, which contains the aspect category, the target term and the sentence are given as input to the tokenizer.
 
 ### Input and Feature representation
 
-The feature representation that we used for our model is the distlBERT tokenizer. The token are then given as input of the distilBERT model. It applies:
-- lowercase the input
-- basic tokenization before WordPiece
-- Same default token for all out of vocabulary tokens.
-- Applies token between two sentences and for padding.
-- Uses classifier token (it is the first token of the sequence when built with special tokens.)
+The first step of the classification process is to create the prompts. We do not use the aspect categories because it did not improve the performances.
 
-### Classification model
+For example, for the following data: 
+```
+positive	LOCATION#GENERAL	neighborhood	54:66	great food, great wine list, great service in a great neighborhood...
+```
+The input prompt becomes:
 
-The DistilBERT model was proposed in the paper <ins>DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter. It is a small, fast, cheap and light Transformer model</ins> trained by distilling BERT base. 
+```
+Definition: The output will be 'positive' if the aspect identified in the sentence contains a positive sentiment. If the sentiment of the identified aspect in the input is negative the answer will be 'negative'. 
+Otherwise, the output should be 'neutral'. For aspects which are classified as noaspectterm, the sentiment is none.
+Positive example 1-
+input: With the great variety on the menu , I eat here often and never get bored. The aspect is menu.
+output: positive
+Positive example 2- 
+input: Great food, good size menu, great service and an unpretensious setting. The aspect is food.
+output: positive
+Now complete the following example-
+input: great food, great wine list, great service in a great neighborhood... The aspect is neighborhood. 
+output:
+```
 
-- Vocabulary size = 30522
-- Maximum position embeddings = 512
-- Sinusoidal position embeddings = False
-- Number of layers = 6
-- Number of heads = 12
-- Dimension = 768
-- Hidden dimension = 3072
-- Dropout = 0.1
-- Attention dropout = 0.1
-- Activation = 'gelu'
-- Standard deviation of the truncated normal initializer = 0.02
+This prompts are then given as input to the tokenizer. The feature representation that we used for our model is the pre-trained BART tokenizer. The tokens are then given as input of the BART model.
 
 
-### Ressources
+### Model fine tuning
 
-@misc{https://doi.org/10.48550/arxiv.1910.01108,
-    doi = {10.48550/ARXIV.1910.01108},
-    url = {https://arxiv.org/abs/1910.01108},
-    author = {Sanh,  Victor and Debut,  Lysandre and Chaumond,  Julien and Wolf,  Thomas},
-    keywords = {Computation and Language (cs.CL),  FOS: Computer and information sciences,  FOS: Computer and information sciences},
-    title = {DistilBERT,  a distilled version of BERT: smaller,  faster,  cheaper and lighter},
-    publisher = {arXiv},
-    year = {2019},
-    copyright = {arXiv.org perpetual,  non-exclusive license}
+The BART model is a denoising autoencoder for pretraining sequence-to-sequence models. We fine tuned it using the traindata.csv file. The fine tuning hyperparameters are:
+- 2 epochs 
+- batch size 8 
+- Adam optimizer with 1e-5 learning rate 
+
 
 ## Accuracy on the dev dataset
 
 |                        | Accuracy on dev dataset |
 |------------------------|-------------------------|
-| distilBERT based model |                         |
+| BART based model       |      87.45 (0.32)       |
 
 
-    
+### Ressources
+
+    @misc{scaria2023instructabsa,
+        title={InstructABSA: Instruction Learning for Aspect Based Sentiment Analysis}, 
+        author={Kevin Scaria and Himanshu Gupta and Siddharth Goyal and Saurabh Arjun Sawant and Swaroop Mishra and Chitta Baral},
+        year={2023},
+        eprint={2302.08624},
+        archivePrefix={arXiv},
+        primaryClass={cs.CL}
+    }
+
+    @misc{lewis2019bart,
+        title={BART: Denoising Sequence-to-Sequence Pre-training for Natural Language Generation, Translation, and Comprehension}, 
+        author={Mike Lewis and Yinhan Liu and Naman Goyal and Marjan Ghazvininejad and Abdelrahman Mohamed and Omer Levy and Ves Stoyanov and Luke Zettlemoyer},
+        year={2019},
+        eprint={1910.13461},
+        archivePrefix={arXiv},
+        primaryClass={cs.CL}
+    }
